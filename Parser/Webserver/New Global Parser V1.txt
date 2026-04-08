@@ -1,0 +1,3 @@
+# New Global Parser
+
+(?<date>\S+)\s(?<time>\S+)\s(?<server_ip>\S+)\s(?<http_method>\S+)\s(?<url>[\S|\u202f]+)\s(?<cs_uri_query>\S+)\s(?<port>\S+)\s(?<user>\S+)\s(?<client_ip>\S+)\s(?<user_agent>\S+)\s(?<ref_url>\S+)\s(?<status>\S+)\s(?<sc_substatus>\S+)\s(?<sc_win32_status>\S+)\s(?<time_taken>\S+)\s(?<requested_ip>[\d{1,3}(?:\.\d{1,3}){3}]+|-)

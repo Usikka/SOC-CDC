@@ -1,0 +1,28 @@
+# Unparsed Linetexts
+
+"[Jan 8, 2026 4:59:50 PM   ] - 10.119.17.53 : GET /AFPServlet/NavigationServlet?action=getSelectedPathTree&mode=nogzip&supportInitialNavNodesFilter=true&targetNodeId=&pathname=%2Firj%2Fportal&sap-ep-inp=1716190579646&sap-ep-nh=1767334690355&sap-ep-pp=&sap-ep-ul=en_US&sap-ep-ur=c4ec1e4a454605a74dec9b27733575a0&afpVerifierKey=8e37476f887aa081b845e266861f16dc HTTP/1.1 200 10692 [18]"
+	# From host name: pgvepprda01
+	
+"2026-01-08 13:37:05 10.100.18.125 GET /newintranet/Images/pesl.jpg - 443 - 10.117.41.80 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/143.0.0.0+Safari/537.36 https://webapps.powergrid.in/newintranet/user/cc/default.aspx 304 0 0 297 -"
+	# From host name: newwebapps
+	
+"[Jan 8, 2026 7:09:50 PM   ] - 10.101.1.39 : POST /GRMGHeartBeat/EntryPoint HTTP/1.1 200 2868 [30]"
+	# From host name: pgpsolman-new
+
+"2026-01-08 13:40:28 W3SVC1 10.100.18.126 POST /legatrix/Login-Legatrix.aspx - 443 - 10.117.50.69 HTTP/2 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/143.0.0.0+Safari/537.36+Edg/143.0.0.0 https://standards.powergrid.in/ 200 0 0 118 -"
+	# From host name: standardsv2
+	
+"- 10.100.19.246 - - [08/Jan/2026:19:11:22 +0530] \"HEAD / HTTP/1.1\" 403 - \"-\" \"Zabbix 7.2.14\" 0/2138"
+	#From host name: nsgmtools
+	
+"2026-01-08 13:49:57 10.100.18.129 HEAD / - 443 - 10.100.19.246 Zabbix+7.2.14 - 302 6 0 10 -"
+	# From host name: sampark
+
+"2026-01-08 13:46:12 10.100.19.210 POST /ex-employee/t/med-apply-for-medical - 443 - 10.100.43.49 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/143.0.0.0+Safari/537.36 https://tejas.powergrid.in/ 200 0 0 287 -"
+	# From host name: extranetappserver
+
+"2026-01-08 13:46:08 10.100.19.98 GET /dreams/common/docreportviewer/0x02000000C80DA97A899D410EE87F6264DB2942E9A2D6BDDBE8BFBC3835AC3E5EB9696B03E26DE4FAFB089E86FBEE3137DE3C6A30 - 443 60001398 10.117.1.208 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/143.0.0.0+Safari/537.36+Edg/143.0.0.0 - 200 0 0 135 -"
+	# From host name: dreamsweb
+	
+"2026-01-08 13:45:11 10.100.19.233 HEAD / - 443 - 10.100.19.246 Zabbix+7.2.14 - 404 6 0 2 -"
+	# From host name: arighat

@@ -1,0 +1,67 @@
+# Log Parsing Guide
+
+Structure:
+	{
+		"version": 1,
+		"name": "<name of the parser>",
+		"rules": [
+			{
+				"type": "regex",											# Enter the pipeline method to use, Method to use regex
+				"src": "<src field>",										# Enter the source field
+				"exp": ""													# for regex, paste the regular expression
+			},
+			{
+				"type": "branch",											# Method to use conditions
+				"condition": "<condition>"									# Write the condition to check
+				"ifTrue": [
+					#~~~~~~
+					#~~~~~~													# Paste the parsing rule here
+					#~~~~~~
+				]
+			},
+			{
+				"type": "delete",											# Method to delete a field from the parsed data
+				"fields": [													# Add the names of the field to be deleted 
+					"<field name 1>",
+					"<field name 2>"
+				]
+			},
+			{
+				"type": "rename",											# Method to rename the field names
+				"maps": [
+					[
+						"<new field name>",									# New name of the field
+						"<field name>"										# Current Name of the field
+					],
+					[
+						"<new field name>",
+						"<field name>"
+					]
+				]
+			},
+			{
+				"type": "geoip",											# Method to implement geoip
+				"src": "<src field>"										# Enter the source field containing the ip to geo locate
+			},
+			{
+				"type": "kv",												# Method to use KV Extraction
+				"src": "<src field>"										# Enter the source field
+			},
+			{
+				"type": "string_ops",
+				"fun": "<function name>",
+				"regex": "",
+				"value": "",
+				"src": "<src field>"
+			},
+			{
+				"type": "unflatten",
+				"delimiter": "<delimiter>"
+			},
+			{
+				"type": "change_index",										# Method to create a new index
+				"index": "<new index>"										# Enter the new index name
+			}
+		]
+	}
+	

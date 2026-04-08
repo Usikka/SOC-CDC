@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "name": "it_waf",
+  "rules": [
+    {
+      "type": "regex",
+      "src": "line",
+      "exp": "(?<module>\\w+)\\s(?<product>\\w+)\\s(?<version>\\S+)\\s(?<kv>.*)"
+    },
+    {
+      "type": "kv",
+      "src": "kv"
+    },
+    {
+      "type": "rename",
+      "removesrc": "true",
+      "maps": [
+        [
+          "dvchost",
+          "host"
+        ]
+      ]
+    },
+    {
+      "type": "branch",
+      "condition": "(dip != null OR sip != null)",
+      "ifTrue":[
+          {
+            "type": "branch",
+            "condition": "(sip != null)",
+            "ifTrue": [
+              {
+                "type": "geoip",
+                "src": "sip"
+              }
+            ]
+          },
+          {
+            "type":"branch",
+            "condition": "(dip != null)",
+            "ifTrue":[
+              {
+                "type": "geoip",
+                "src": "dip"
+              }
+            ]
+          }
+        ]
+    },
+    {
+      "type": "delete",
+      "fields": [
+        "kv",
+        "line",
+        "host"
+      ]
+    }
+  ]
+}

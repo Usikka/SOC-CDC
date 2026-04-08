@@ -1,0 +1,37 @@
+{
+	"version": 1,
+	"name": "Qlik_Test_Conditional_Parser",
+	"rules": [
+		{
+			"type": "string_ops",
+			"fun": "replace",
+			"regex": "\\t",
+			"flags": "g",
+			"src": "line_text",
+			"dest": "output",
+			"value": "|"
+		},
+		{
+			"type": "regex",
+			"src": "output",
+			"exp": (?<sequence>[^|]+)\\|(?<timestamp>[^|]+)\\|(?<level>[^|]+)\\|(?<hostname>[^|]+)\\|(?<logger>[^|]+)\\|(?<thread>[^|]+)\\|(?<id>[^|]+)\\|(?<service_user>[^|]+)\\|(?<message>[^|]+)\\|(?<Extra>.*)
+		},
+		{
+			"type": "branch",
+			"condition": "logger == 'System\\.Engine\\.Engine'",
+			"ifTrue": [
+				{
+					"type": "regex",
+					"src": "extras"
+					"exp": "(?<sevirity_code>[^|]+)\\|(?<stream_type>[^|]+)\\|(?<owner>[^|]+)\\|(?<log_time>[^|]+)\\|(?<process_id>[^|]+)\\|(?<thread_id>[^|]+)\\|(?<doc_guid>[^|]+)\\|(?<doc_created>[^|]+)\\|(?<corelation_id>[^|]+)(?<extras>.*)"
+				}
+			]
+		},
+		{
+			"type": "delete",
+			"fields": [
+				"output"
+			]
+		}
+	]
+}

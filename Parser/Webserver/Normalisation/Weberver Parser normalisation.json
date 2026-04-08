@@ -1,0 +1,276 @@
+
+{
+  "version": 1,
+  "name": "webserver",
+  "rules": [
+    {
+      "type": "regex",
+      "src": "line_text",
+      "exp": [
+        "(?<date>\\S+)\\s(?<time>\\S+)\\s(?<server_ip>\\S+)\\s(?<http_method>\\S+)\\s(?<url>\\S+)\\s(?<cs_uri_query>\\S+)\\s(?<port>\\S+)\\s(?<user>\\S+)\\s(?<client_ip>\\S+)\\s(?<webclient>\\S+)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<sc_substatus>\\S+)\\s(?<sc_win32_status>\\S+)\\s(?<time_taken>\\S+)\\s(?<requested_ip>\\S+),(.*)",
+        "(?<date>\\S+)\\s(?<time>\\S+)\\s(?<server_ip>\\S+)\\s(?<http_method>\\S+)\\s(?<url>\\S+)\\s(?<cs_uri_query>\\S+)\\s(?<port>\\S+)\\s(?<user>\\S+)\\s(?<client_ip>\\S+)\\s(?<webclient>\\S+)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<sc_substatus>\\S+)\\s(?<sc_win32_status>\\S+)\\s(?<time_taken>\\S+)\\s(?<requested_ip>\\S)"
+      ]
+    },
+    {
+      "type": "delete",
+      "fields": [
+        "line_text"
+      ]
+    },
+    {
+      "type": "change_index",
+      "index": "webserver"
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_change_index",
+  "rules": [
+    {
+      "type": "change_index",
+      "index": "webserver"
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='pgppoprddc2' or host.name=='pgppoprddc1')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "src": "line_text",
+          "exp": "\\[(?<timestamp>.*?)\\]\\s+-\\s+(?<ip>\\S+)\\s+:\\s+(?<http_method>\\w+)\\s+(?<request>\\S+)\\s+(?<protocol>HTTP\\/\\d\\.\\d)\\s+(?<status>\\d{3})\\s+(?<size>\\d+)\\s+\\[(?<requested_ip>\\d+)\\]"
+        },
+        {
+          "type": "render",
+          "template": "erp_webserver",
+          "dest": "sub_index"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new1",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='pgvepprda01' or host.name=='pgvepprda02' or host.name=='pgvepprda04' or host.name=='pgvepprda03' or host.name=='pgpsrmjprddc2' or host.name=='pgpepprddc2')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": "\\[(?<date>[A-Za-z]{3}\\s+\\d{1,2},\\s+\\d{4})\\s+(?<time>\\d{1,2}:\\d{2}:\\d{2}\\s+[AP]M)\\s+]\\s*-\\s*(?<requested_ip>\\d{1,3}(?:\\.\\d{1,3}){3})\\s*:\\s*(?<http_method>[A-Z]+)\\s+(?<url>\\S+)\\s+(?<http_version>[^\"]+)\\s+(?<status>\\d{3})\\s+(?<size>\\d+)\\s+\\[(?<extra>\\d+)\\]",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new2",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='arighat' or host.name=='DRBoardPac' or host.name=='dreamsweb' or host.name=='newvidyut' or host.name=='newwebapps' or jost.name=='sampark')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": "(?<date>\\S+)\\s(?<time>\\S+)\\s(?<server_ip>\\S+)\\s(?<http_method>\\S+)\\s(?<url>[\\S|\\u202f]+)\\s(?<cs_uri_query>\\S+)\\s(?<port>\\S+)\\s(?<user>\\S+)\\s(?<client_ip>\\S+)\\s(?<user_agent>\\S+)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<sc_substatus>\\S+)\\s(?<sc_win32_status>\\S+)\\s(?<time_taken>\\S+)\\s(?<requested_ip>[\\d{1,3}(?:\\.\\d{1,3}){3}]+|-)",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_extranet",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='extranetappserver')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": "(?<date>\\S+)\\s(?<time>\\S+)\\s(?<server_ip>\\d{1,3}(?:\\.\\d{1,3}){3}|-)\\s(?<http_method>\\S+)\\s(?<uri_stem>\\S+)\\s(?<uri_query>\\S+|-)\\s(?<port>\\d{1,5}|-)\\s(?<user>\\S+)\\s(?<client_ip>\\S+)\\s(?<user_agent>\\S+)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<sc_substatus>\\S+)\\s(?<sc_win32_status>\\S+)\\s(?<sc_bytes>\\S+)\\s(?<cs_bytes>\\S+)\\s(?<time_taken>\\S+)\\s(?<requested_ip>\\S+)",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_nsgmtools-test",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='nsgmtools')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": ".*\\s(?<client_ip>\\d{1,3}(?:\\.\\d{1,3}){3}|-)\\s-\\s-\\s\\[(?<date>\\d{1,2}\\/[A-Z][a-z]{2}\\/\\d{4}):(?<time>\\d+:\\d+:\\d+\\s\\+\\d+)\\]\\s\\\\\\\"(?<http_method>\\S+)\\s\\/\\s(?<http_version>\\S+)\\\\\"\\s(?<status>\\S+)\\s(?<responce_size>\\S+)\\s\\\\\"(?<referrer>\\S+)\\\\\"\\s\\\\\\\"(?<user_agent>\\S+\\s\\S+)\\\\\"\\s(?<conn_count>\\S+)\\/(?<req_time>\\S+)\\\"",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_nsgmtools",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='nsgmtools')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": ".*(?<client_ip>\\d{1,3}(?:\\.\\d{1,3}){3}|-)\\s-\\s-\\s\\[(?<date>\\d{1,2}\\/[A-Z][a-z]{2}\\/\\d{4}):(?<time>\\d+:\\d+:\\d+\\s\\+\\d+)\\]\\s\\\\\\\"(?<http_method>\\S+)\\s\\/\\s(?<http_version>\\S+)\\\\\"\\s(?<status>\\S+)\\s(?<responce_size>\\S+)\\s\\\\\"(?<referrer>\\S+)\\\\\"\\s\\\\\\\"(?<user_agent>\\S+\\s\\S+)\\\\\"\\s(?<conn_count>\\S+)\\/(?<req_time>\\S+)\"",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_patrolling",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='Patrolling-VM02' or host.name=='Patrolling-VM03' or host.name=='Patrolling-VM04' or host.name=='Patrolling-VM05' or host.name=='Patrolling-VM06')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": "(?<date>\\d{4}-\\d{2}-\\d{2})\\s+(?<time>\\d{2}:\\d{2}:\\d{2})\\s+(?<src_ip>\\d{1,3}(?:\\.\\d{1,3}){3})\\s+(?<username>\\S+)\\s+(?<requested_ip>\\d{1,3}(?:\\.\\d{1,3}){3})\\s+(?<port>\\d+)\\s+(?<command>[A-Za-z]+)(?:\\s+(?<path>\\S+)\\s+(?<status>\\d{3})|\\s+-\\s+-)\\s+(?<val1>\\d+)\\s+(?<val2>\\d+)\\s+(?<session_id>[a-f0-9\\-]+)\\s+(?<last_path>\\S+)",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_standardsv2",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='standardsv2')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "exp": "(?<date>\\S+)\\s(?<time>\\S+)\\s(?<iis_site>\\S+)\\s(?<src_ip>\\S+)\\s(?<http_method>\\S+)\\s(?<requested_resource>\\S+)\\s(?<referrer>\\S+)\\s(?<port>\\S+)\\s(?<authenticated_user>\\S+)\\s(?<dest_ip>\\S+)\\s(?<protocol_version>\\S+)\\s(?<user_agent>\\S+)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<bytes_sent>\\S+)\\s(?<response_time>\\S+)\\s(?<req_process_time>\\S+)\\s(?<cookie>\\S+)",
+          "src": "line_text"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_new_test",
+  "rules": [
+    {
+      "type": "regex",
+      "src": "line_text",
+      "exp": "\\[(?<timestamp>.*?)\\]\\s+-\\s+(?<ip>\\S+)\\s+:\\s+(?<http_method>\\w+)\\s+(?<request>\\S+)\\s+(?<protocol>HTTP\\/\\d\\.\\d)\\s+(?<status>\\d{3})\\s+(?<size>\\d+)\\s+\\[(?<requested_ip>\\d+)\\]"
+    },
+    {
+      "type": "render",
+      "template": "erp_webserver",
+      "dest": "sub_index"
+    },
+    {
+      "type": "delete",
+      "fields": [
+        "line_text"
+      ]
+    }
+  ]
+},
+{
+  "version": 1,
+  "name": "webserver_subindex",
+  "rules": [
+    {
+      "type": "branch",
+      "condition": "(host.name=='putlv3' or host.name=='pginvit-v3'or host.name=='newwebapps' or host.name=='dreamsweb')",
+      "ifTrue": [
+        {
+          "type": "regex",
+          "src": "line_text",
+          "exp": [
+            "\"(?<date>\\d{4}-\\d{2}-\\d{2})\\s(?<time>\\d{2}:\\d{2}:\\d{2})\\s(?<server_ip>\\S+)\\s(?<http_method>\\S+)\\s(?<cs_uri_stem>[^\\r\\n]+?\\.\\w+)\\s(?<cs_uri_query>-|\\S*)\\s+-\\s+(?<port>\\S+)\\s(?<user>\\S+)\\s(?<client_ip>\\S+)\\s(?<user_agent>.+?)\\s(?<ref_url>\\S+)\\s(?<status>\\S+)\\s(?<sc_substatus>\\S+)\\s(?<sc_win32_status>\\S+)\\s(?<time_taken>\\S+)\\s(?<requested_ip>\\S+)\""
+          ]
+        },
+        {
+          "type": "render",
+          "template": "webserver_pgwebsite",
+          "dest": "sub_index"
+        },
+        {
+          "type": "delete",
+          "fields": [
+            "line_text"
+          ]
+        }
+      ]
+    }
+  ]
+},

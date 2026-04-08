@@ -1,0 +1,99 @@
+{
+    "collector": {
+      "url": "wss://10.105.80.60:4100",
+      "certPath": "/opt/collector/certs"
+    },
+    "geo": {
+      "dbPath": "/opt/collector/maxmind"
+    },
+    "servers": [
+      {
+        "port": 6155,
+        "mode": "tcp",
+        "log_seperator": "<\\d+>",
+        "log_seperator_flags": "g",
+        "drop_late_mins": 100,
+        "host": "0.0.0.0",
+        "index": "it_dr_fw",
+        "processRules": [
+          {
+            "type": "kv",
+            "src": "line"
+          },
+          {
+            "type": "geoip",
+            "src": "srcip"
+          },
+          {
+            "type": "geoip",
+            "src": "dstip"
+          },
+          {
+                "type":"delete",
+                "fields":["line"]
+          }
+        ]
+      },
+      {
+        "port": 6157,
+        "mode": "tcp",
+        "log_seperator": "<\\d+>",
+        "log_seperator_flags": "g",
+        "drop_late_mins": 100,
+        "host": "0.0.0.0",
+        "index": "erp_fortigate_external",
+        "processRules": [
+          {
+            "type": "kv",
+            "src": "line"
+          },
+          {
+            "type": "geoip",
+            "src": "srcip"
+          },
+          {
+            "type": "geoip",
+            "src": "dstip"
+          },
+	  {
+	    "type":"delete",
+	    "fields":["line"]
+	  }
+        ]
+      },
+      {
+        "port": 6159,
+        "mode": "tcp",
+        "drop_late_mins": 100,
+        "host": "0.0.0.0",
+        "index": "it_waf",
+        "processRules": [
+	  {
+	    "type": "regex",
+	    "src" : "line",
+	    "exp" : "(?<module>\\w+)\\s(?<product>\\w+)\\s(?<version>\\S+)\\s(?<kv>.*)"
+	  },
+	 {
+	    "type":"kv",
+	    "src":"kv"
+	 },
+       	{
+      	   "type": "remap",
+           "templates": [
+		{
+		   "dest": "dvchost",
+		   "src": "host"
+		}   
+	     ],
+           "options":{
+		     "removeSrc":true	
+		      }
+    	},
+	 {
+	    "type":"delete",
+	    "fields":["kv","line","host"]
+	 }
+        ]
+       }
+    ]
+}
