@@ -1,0 +1,165 @@
+---
+- name: Patch audit and controlled update (Rocky Linux 9.4)
+  hosts: <Host Group>
+  become: yes
+
+  environment:
+    http_proxy: "{{ proxy_url }}"
+    https_proxy: "{{ proxy_url }}"
+
+  vars:
+
+    proxy_url: "http://10.105.80.60:3128"
+
+    report_owner: "cdc"
+    report_group: "wheel"
+
+    packages_to_check:
+      - openssl
+      - python3
+      - kernel
+      - <User Defined Packages>
+
+    report_dir: "/var/tmp/patch_reports"
+
+    today: "{{ ansible_date_time.date }}"
+
+
+  pre_tasks:
+
+    - name: Ensure report directory exists
+      file:
+        path: "{{ report_dir }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ report_owner }}"
+        group: "{{ report_group }}"
+
+
+  tasks:
+
+    # -----------------------------------
+    # 1. Capture installed packages (before)
+    # -----------------------------------
+
+    - name: Get list of installed packages
+      command: rpm -qa --qf '%{NAME},%{VERSION}-%{RELEASE}\n'
+      register: pkg_before
+
+    - name: Save installed packages (before)
+      copy:
+        content: "{{ pkg_before.stdout }}"
+        dest: "{{ report_dir }}/{{ inventory_hostname }}_{{ today }}_before.csv"
+        owner: "{{ report_owner }}"
+        group: "{{ report_group }}"
+        mode: '0644'
+
+
+    # -----------------------------------
+    # 2. Check updates (selected packages)
+    # -----------------------------------
+
+    - name: Check available updates for selected packages
+      command: dnf check-update {{ packages_to_check | join(' ') }}
+      register: update_check
+      failed_when: update_check.rc not in [0, 100]
+      changed_when: false
+
+    - name: Show available updates
+      debug:
+        msg: "{{ update_check.stdout_lines }}"
+
+
+    # -----------------------------------
+    # 3. Prompt before installing
+    # -----------------------------------
+
+    - name: Confirm installation
+      pause:
+        prompt: "Install the above updates? (yes/no)"
+      register: user_confirm
+
+    - name: Stop if user says no
+      meta: end_host
+      when: user_confirm.user_input | lower != "yes"
+
+
+    # -----------------------------------
+    # 4. Download + Install (Revertible)
+    # -----------------------------------
+
+    - name: Download and install selected packages with rollback on failure
+      block:
+
+        - name: Download packages only
+          dnf:
+            name: "{{ packages_to_check }}"
+            state: latest
+            download_only: yes
+
+        - name: Install packages
+          dnf:
+            name: "{{ packages_to_check }}"
+            state: latest
+
+        - name: Capture DNF transaction history
+          command: dnf history info last
+          register: dnf_history
+          changed_when: false
+
+        - name: Store rollback info
+          copy:
+            content: "{{ dnf_history.stdout }}"
+            dest: "{{ report_dir }}/{{ inventory_hostname }}_{{ today }}_rollback.txt"
+            owner: "{{ report_owner }}"
+            group: "{{ report_group }}"
+            mode: '0644'
+
+      rescue:
+
+        - name: Log install failure
+          copy:
+            content: |
+              Install failed on {{ inventory_hostname }} at {{ ansible_date_time.iso8601 }}.
+              Error: {{ ansible_failed_result | to_nice_yaml }}
+            dest: "{{ report_dir }}/{{ inventory_hostname }}_{{ today }}_FAILED.txt"
+            owner: "{{ report_owner }}"
+            group: "{{ report_group }}"
+            mode: '0644'
+
+        - name: Attempt DNF rollback
+          command: dnf history undo last -y
+          register: rollback_result
+
+        - name: Log rollback outcome
+          copy:
+            content: "{{ rollback_result.stdout }}"
+            dest: "{{ report_dir }}/{{ inventory_hostname }}_{{ today }}_rollback_result.txt"
+            owner: "{{ report_owner }}"
+            group: "{{ report_group }}"
+            mode: '0644'
+
+        - name: Fail the play after rollback
+          fail:
+            msg: >
+              Installation failed on {{ inventory_hostname }}.
+              Rollback attempted. Review
+              {{ report_dir }}/{{ inventory_hostname }}_{{ today }}_FAILED.txt
+              for details.
+
+
+    # -----------------------------------
+    # 5. Capture installed packages (after)
+    # -----------------------------------
+
+    - name: Get updated package list
+      command: rpm -qa --qf '%{NAME},%{VERSION}-%{RELEASE}\n'
+      register: pkg_after
+
+    - name: Save installed packages (after)
+      copy:
+        content: "{{ pkg_after.stdout }}"
+        dest: "{{ report_dir }}/{{ inventory_hostname }}_{{ today }}_after.csv"
+        owner: "{{ report_owner }}"
+        group: "{{ report_group }}"
+        mode: '0644'
