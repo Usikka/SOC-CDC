@@ -95,3 +95,37 @@ temp/
 # Internal configs (if any)
 config.local.json
 secrets.json
+
+# =========================
+# MEDIA FILES
+# =========================
+
+# Images
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.svg
+*.webp
+
+# Videos
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.wmv
+*.flv
+*.webm
+
+# Audio
+*.mp3
+*.wav
+*.aac
+*.flac
+*.ogg
+
+# Screen recordings / captures
+*.m4v
+*.3gp
